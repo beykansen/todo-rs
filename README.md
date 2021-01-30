@@ -4,10 +4,14 @@ Simple ToDo app example written in Rust with Actix-Web and MongoDB.
 
 
 ## Usage
+Change MongoDB credentials in toml files which are in ``config/`` folder.
 
-```bash
-cargo run
-```
+Build and run with ``cargo run`` command.
+
+Access from browser or your favorite api test client.
+``
+http://localhost:8081
+``
 ## Demos
 [Client Demo](https://todo-rs-client.herokuapp.com)
 
