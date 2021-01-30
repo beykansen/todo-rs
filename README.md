@@ -1,3 +1,5 @@
+![Rust](https://github.com/beykansen/todo-rs/workflows/Rust/badge.svg)
+
 # ToDo Rust Examle
 
 Simple ToDo app example written in Rust with Actix-Web and MongoDB.
