@@ -59,7 +59,7 @@ impl Repository {
     pub async fn get_all(&self, done : Option<bool>) ->  Result<Vec<Todo>, Error> {
         let collection = self.get_collection().await?;
         let mut filter: Option<Document> = None;
-        let find_options = FindOptions::builder().sort(doc! { "added_at": -1 }).build();
+        let find_options = FindOptions::builder().sort(doc! { "added_at": -1 }).limit(100).build();
         match done {
             Some(d) => {
                 filter = Some(doc! { "done": d })
