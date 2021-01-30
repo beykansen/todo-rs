@@ -1,4 +1,4 @@
-use chrono::prelude::*;
+use bson::DateTime;
 use serde::{Serialize, Deserialize};
 
 
@@ -7,6 +7,6 @@ pub struct Todo {
     pub id: String,
     pub name: String,
     pub done: bool,
-    pub added_at: DateTime<Utc>,
+    pub added_at: DateTime,
     pub tags: Vec<String>,
 }

@@ -1,9 +1,9 @@
 use actix_web::{web,  HttpResponse};
 use chrono::prelude::*;
-use crate::dto::{SaveTodoRequest, SaveTodoResponse, GetAllRequest, GetAllResponse, UpdateResponse, DeleteResponse};
+use crate::dto::{SaveTodoRequest, SaveTodoResponse, GetAllRequest, GetAllResponse, UpdateResponse, DeleteResponse, TodoResponse};
 use crate::model::Todo;
 use uuid::Uuid;
-use bson::{doc};
+use bson::{doc, DateTime};
 use crate::repository::Repository;
 
 #[derive(Clone)]
@@ -12,6 +12,7 @@ pub struct HttpContext {
     pub repository: Repository,
 }
 
+//todo this handler should not know bson. Maybe refactor it.
 
 pub async fn index() -> HttpResponse {
     //todo use swagger
@@ -33,7 +34,7 @@ pub async fn save(context: web::Data<HttpContext>, request: web::Json<SaveTodoRe
     }
     let id = Uuid::new_v4().to_string();
     let todo = Todo {
-        added_at: Utc::now(),
+        added_at: DateTime(Utc::now()),
         name: todo_request.name,
         done: false,
         tags: todo_request.tags,
@@ -43,7 +44,6 @@ pub async fn save(context: web::Data<HttpContext>, request: web::Json<SaveTodoRe
     let result = context.repository.insert(todo).await;
     match result {
         Ok(result) => {
-            info!(logger, "Saved");
             HttpResponse::Ok().json(SaveTodoResponse{success:result, id})
         },
         Err(e) => {
@@ -63,7 +63,16 @@ pub async fn get(context: web::Data<HttpContext>, id: web::Path<String>) -> Http
     match result {
         Ok(result) => {
             match result {
-                Some(r) => HttpResponse::Ok().json(r),
+                Some(r) => {
+                    let todo_response = TodoResponse{
+                        added_at:r.added_at.to_rfc3339(),
+                        id:r.id,
+                        done:r.done,
+                        name:r.name,
+                        tags:r.tags
+                    };
+                    HttpResponse::Ok().json(todo_response)
+                },
                 None => HttpResponse::NoContent().finish(),
             }
         },
@@ -80,8 +89,18 @@ pub async fn get_all(context: web::Data<HttpContext>, request: web::Query<GetAll
     match result {
         Ok(result) => {
             if !result.is_empty() {
+                let mut todo_responses : Vec<TodoResponse> = Vec::new();
+                for todo in result {
+                    todo_responses.push(TodoResponse {
+                        tags:todo.tags,
+                        name:todo.name,
+                        done:todo.done,
+                        id:todo.id,
+                        added_at:todo.added_at.to_rfc3339()
+                    })
+                }
                 let response = GetAllResponse{
-                    todos: result
+                    todos:todo_responses
                 };
                 HttpResponse::Ok().json(response)
             }else {
@@ -96,20 +115,18 @@ pub async fn get_all(context: web::Data<HttpContext>, request: web::Query<GetAll
 }
 
 
-pub async fn toggle_done(context: web::Data<HttpContext>, id: web::Path<String>) -> HttpResponse {
+pub async fn toggle_done_status(context: web::Data<HttpContext>, id: web::Path<String>) -> HttpResponse {
     let logger = context.logger.clone();
     if id.is_empty() {
         return HttpResponse::BadRequest().finish()
     }
     let id = id.into_inner();
 
-
     let get_result = context.repository.get(id.as_str()).await;
     match get_result {
         Ok(get_result) => {
             match get_result {
                 Some(todo) => {
-                    //todo bson leak
                     let update_doc = doc!{"$set" : {"done":!todo.done}};
                     let update_result = context.repository.update(id.as_str(), update_doc).await;
                     match update_result {
@@ -126,7 +143,7 @@ pub async fn toggle_done(context: web::Data<HttpContext>, id: web::Path<String>)
             }
         },
         Err(e) => {
-            error!(logger,"Error while updating, {:?}", e);
+            error!(logger,"Error while getting for updating, {:?}", e);
             HttpResponse::InternalServerError().finish()
         }
     }
@@ -134,7 +151,6 @@ pub async fn toggle_done(context: web::Data<HttpContext>, id: web::Path<String>)
 
 pub async fn delete(context: web::Data<HttpContext>, id: web::Path<String>) -> HttpResponse {
     let logger = context.logger.clone();
-    info!(logger, "herqqwe");
     if id.is_empty() {
         return HttpResponse::BadRequest().finish()
     }
@@ -143,7 +159,6 @@ pub async fn delete(context: web::Data<HttpContext>, id: web::Path<String>) -> H
     let result = context.repository.delete(id.as_str()).await;
     match result {
         Ok(result) => {
-            info!(logger, "deleted");
             HttpResponse::Ok().json(DeleteResponse{success:result})
         },
         Err(e) => {

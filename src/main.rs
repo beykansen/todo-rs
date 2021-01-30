@@ -12,7 +12,7 @@ use std::sync::Mutex;
 use handlers::{HttpContext};
 use settings::Settings;
 use repository::Repository;
-use handlers::{index, save, get, toggle_done, delete, get_all};
+use handlers::{index, save, get, toggle_done_status, delete, get_all};
 
 #[macro_use]
 extern crate slog;
@@ -43,7 +43,7 @@ async fn main() -> std::io::Result<()> {
             .data(http_context.clone())
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/todos/{id}").route(web::delete().to(delete)).route(web::get().to(get)))
-            .service(web::resource("/todos/{id}/done").route(web::patch().to(toggle_done)))
+            .service(web::resource("/todos/{id}/done").route(web::patch().to(toggle_done_status)))
             .service(web::resource("/todos").route(web::post().to(save)).route(web::get().to(get_all)))
     }).bind(server_url)?.run().await
 }

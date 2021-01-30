@@ -6,9 +6,9 @@ use futures::stream::StreamExt;
 
 #[derive(Clone)]
 pub struct Repository {
-   db_name : String,
-   collection_name : String,
-   url: String
+    db_name : String,
+    collection_name : String,
+    url: String
 }
 
 impl Repository {
@@ -72,7 +72,7 @@ impl Repository {
         while let Some(result) = cursor.next().await {
             match result {
                 Ok(doc) => {
-                   todos.push(bson::from_bson(bson::Bson::Document(doc)).unwrap());
+                    todos.push(bson::from_bson(bson::Bson::Document(doc)).unwrap());
                 }
                 Err(e) => return Err(e.into()),
             }

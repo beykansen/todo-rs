@@ -1,6 +1,15 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct TodoResponse {
+    pub id: String,
+    pub name: String,
+    pub done: bool,
+    pub added_at: String,
+    pub tags: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SaveTodoRequest {
     pub name: String,
     pub tags: Vec<String>,
@@ -28,6 +37,6 @@ pub struct GetAllRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct GetAllResponse<T> {
-    pub todos: Vec<T>,
+pub struct GetAllResponse {
+    pub todos: Vec<TodoResponse>,
 }
