@@ -1,0 +1,6 @@
+[database]
+url = "mongodb://user:pw@server/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256"
+echo = true
+
+[server]
+port = "80"

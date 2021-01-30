@@ -1,0 +1,8 @@
+[database]
+url = "mongodb://user:pw@server/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256"
+db_name = "todo-rs"
+collection_name = "todos"
+
+
+[server]
+port = "8081"

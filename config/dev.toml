@@ -1,0 +1,5 @@
+[database]
+echo = true
+
+[server]
+echo = true
