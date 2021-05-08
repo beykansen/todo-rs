@@ -17,7 +17,3 @@ Access from browser or your favorite api test client.
 ``
 http://localhost:8081
 ``
-## Demos
-[Client Demo](https://todo-rs-client.herokuapp.com)
-
-[Api Demo](https://todo-api.beykansen.com)
